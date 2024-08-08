@@ -14,16 +14,24 @@ namespace CodingTrackerApp.Models
         string dbConnString = ConfigurationManager.AppSettings.Get("SQLiteConnectionString");
         public void Post(CodingSession codingSession)
         {
-            using (var connection = new SQLiteConnection(dbConnString))
+            try
             {
-                var sqlSentence = "INSERT INTO Coding (StartTime, EndTime, Duration) VALUES (@StartTime, @EndTime, @Duration)";
+                using (var connection = new SQLiteConnection(dbConnString))
+                {
+                    var sqlSentence = "INSERT INTO Coding (StartTime, EndTime, Duration) VALUES (@StartTime, @EndTime, @Duration)";
 
-                connection.Open();
+                    connection.Open();
 
-                var rowsAffected = connection.Execute(sqlSentence, codingSession);
-                Console.WriteLine($"{rowsAffected} row(s) inserted");
+                    var rowsAffected = connection.Execute(sqlSentence, codingSession);
+                    Console.WriteLine($"{rowsAffected} row(s) inserted");
 
-                connection.Close();
+                    connection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return;
             }
 
         }
@@ -51,7 +59,8 @@ namespace CodingTrackerApp.Models
                 }
                 else
                 {
-                    Console.WriteLine("No rows in table");
+                    AnsiConsole.Markup("[red]Coding Session Updated![/]\n");
+                    connection.Close();
                     return;
                 }
 
@@ -80,7 +89,7 @@ namespace CodingTrackerApp.Models
         public void Update(int idRowToUpdate, int option, string newDuration, string newStartDate = null, string newEndDate = null)
         {
             string sql;
-            int affectedRows;
+            int affectedRows = 0;
             using (var connection = new SQLiteConnection(dbConnString))
             {
                 switch (option)
@@ -88,26 +97,19 @@ namespace CodingTrackerApp.Models
                     case 1:
                         sql = $"UPDATE Coding SET StartTime = \"{newStartDate}\", Duration = \"{newDuration}\" WHERE Id = {idRowToUpdate}";
                         affectedRows = connection.Execute(sql);
-                        AnsiConsole.Markup("[green]Coding Session Updated![/]\n");
-                        AnsiConsole.Markup($"[green]Affected rows: {affectedRows} [/]\n");
-                        connection.Close();
-                        return;
+                        break;
                     case 2:
                         sql = $"UPDATE Coding SET EndTime = \"{newEndDate}\", Duration = \"{newDuration}\" WHERE Id = {idRowToUpdate}";
                         affectedRows = connection.Execute(sql);
-                        AnsiConsole.Markup("[green]Coding Session Updated![/]\n");
-                        AnsiConsole.Markup($"[green]Affected rows: {affectedRows}[/]\n");
-                        connection.Close();
-                        return;
+                        break;
                     case 3:
                         sql = $"UPDATE Coding SET StartTime = \"{newStartDate}\", EndTime = \"{newEndDate}\", Duration = \"{newDuration}\" WHERE Id = {idRowToUpdate}";
                         affectedRows = connection.Execute(sql);
-                        AnsiConsole.Markup("[green]Coding Session Updated![/]\n");
-                        AnsiConsole.Markup($"[green]Affected rows: {affectedRows}[/]\n");
-                        connection.Close();
-                        return;
+                        break;
                 }
-
+                AnsiConsole.Markup("[green]Coding Session Updated![/]\n");
+                AnsiConsole.Markup($"[green]Affected rows: {affectedRows}[/]\n");
+                connection.Close();
             }
 
         }

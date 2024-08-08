@@ -14,9 +14,8 @@ namespace CodingTrackerApp
             
             while (closeApp == false)
             {
-                //Console.Write("-------MAIN MENU---\n1. Create Record for Coding\n2. Read Coding Records\n3. Update Coding Record\n4. Delete Coding Record\nSelect an option: ");
-                //int option = Convert.ToInt32(Console.ReadLine());
                 var option = AnsiConsole.Ask<int>("-------MAIN MENU-------\n1.[lime]Create Record for Coding[/]\n2.[yellow]Read Coding Records[/]\n3.[aqua]Update Coding Record[/]\n4.[maroon]Delete Coding Record[/]\nSelect an option: ");
+                Console.Clear();
                 switch (option) 
                 { 
                     case 1:
@@ -30,6 +29,9 @@ namespace CodingTrackerApp
                         break;
                     case 4:
                         DeleteUserRecord();
+                        break;
+                    default:
+                        AnsiConsole.Markup("[red]Select a valid option![/]\n");
                         break;
                 }
 
@@ -58,18 +60,15 @@ namespace CodingTrackerApp
         {
             DateTime startDateTime;
 
-            //Console.WriteLine("Insert the start date in this format \"dd/MM/yyyy HH:mm:ss\", type 0 to exit");
-            //string startDateInput = Console.ReadLine();
-
-            string startDateInput = AnsiConsole.Ask<string>("Insert the [darkslategray2]start date[/] in this format [green]\"dd/MM/yyyy HH:mm:ss[/]\", [fuchsia] type 0 to exit[/]: ");
+            string startDateInput = AnsiConsole.Ask<string>("Insert the [darkslategray2]start date[/] in this format [green]\"dd/MM/yyyy HH:mm[/]\", [fuchsia] type 0 to exit[/]: ");
 
             if (startDateInput == "0") MainMenu();
 
             while (!DateTime.TryParseExact(startDateInput, "dd/MM/yyyy HH:mm", new CultureInfo("en-US"), DateTimeStyles.None, out startDateTime))
             {
-                startDateInput = AnsiConsole.Ask<string>("[red]Not a valid date![/] Please insert the [green]\"dd/MM/yyyy HH:mm[/]\" format: ");
-                //Console.WriteLine("Not a valid date! Please insert the \"dd/MM/yyyy HH:mm\" format");
-                //startDateInput = Console.ReadLine();
+                startDateInput = AnsiConsole.Ask<string>("[red]Not a valid date![/] Please insert the [green]\"dd/MM/yyyy HH:mm[/]\" format or [fuchsia] type 0 to exit[/]:  ");
+
+                if (startDateInput == "0") MainMenu();
             }
 
             return startDateTime;
@@ -79,18 +78,15 @@ namespace CodingTrackerApp
         {
             DateTime endDateTime;
 
-            //Console.WriteLine("Insert the end date in this format \"dd/MM/yyyy HH:mm\", type 0 to exit");
-            //string endDateInput = Console.ReadLine();
-
-            string endDateInput = AnsiConsole.Ask<string>("Insert the [cornflowerblue]end date[/] in this format [green]\"dd/MM/yyyy HH:mm:ss[/]\", [fuchsia] type 0 to exit[/]: ");
+            string endDateInput = AnsiConsole.Ask<string>("Insert the [cornflowerblue]end date[/] in this format [green]\"dd/MM/yyyy HH:mm[/]\", [fuchsia] type 0 to exit[/]: ");
 
             if (endDateInput == "0") MainMenu();
 
             while (!DateTime.TryParseExact(endDateInput, "dd/MM/yyyy HH:mm", new CultureInfo("en-US"), DateTimeStyles.None, out endDateTime))
             {
-                //Console.WriteLine("Not a valid date! Please insert the \"dd/MM/yyyy HH:mm\" format");
-                //endDateInput = Console.ReadLine();
-                endDateInput = AnsiConsole.Ask<string>("[red]Not a valid date![/] Please insert the [green]\"dd/MM/yyyy HH:mm[/]\" format: ");
+                endDateInput = AnsiConsole.Ask<string>("[red]Not a valid date![/] Please insert the [green]\"dd/MM/yyyy HH:mm[/]\" format or or [fuchsia] type 0 to exit[/]: ");
+
+                if (endDateInput == "0") MainMenu();
             }
 
             return endDateTime;
@@ -122,10 +118,12 @@ namespace CodingTrackerApp
                 DateTime newEndDate;
                 var oldRowValues = codingController.GetById(rowId);
 
-                var option = AnsiConsole.Ask<int>("1.[orange1]Edit Start Time [/]\n2.[gold1]Edit End Time[/]\n3.[dodgerblue2]Edit both [/]\nSelect an option: ");
+                var option = AnsiConsole.Ask<int>("0. Cancel Operation\n1.[orange1]Edit Start Time [/]\n2.[gold1]Edit End Time[/]\n3.[dodgerblue2]Edit both [/]\nSelect an option: ");
 
                 switch (option)
                 {
+                    case 0:
+                        break;
                     case 1:
                         newStartDate = InsertStartDate();
                         newDuration = GetDurationInput(newStartDate, DateTime.Parse(oldRowValues.EndTime));
@@ -142,12 +140,15 @@ namespace CodingTrackerApp
                         newDuration = GetDurationInput(newStartDate, newEndDate);
                         codingController.Update(rowId, option, newDuration, newStartDate.ToString("dd/MM/yyyy HH:mm"), newEndDate.ToString());
                         return;
+                    default:
+                        AnsiConsole.Markup("[red]Select a valid option![/]\n");
+                        break;
 
                 }
             }
             else
             {
-                AnsiConsole.Markup("[red]The ID doesn't exist![/]");
+                AnsiConsole.Markup("[red]The ID doesn't exist![/]\n");
                 return;
             }
 
@@ -167,7 +168,7 @@ namespace CodingTrackerApp
             }
             else
             {
-                AnsiConsole.Markup("[red]The ID doesn't exist![/]");
+                AnsiConsole.Markup("[red]The ID doesn't exist![/]\n");
                 return;
             }
         }
